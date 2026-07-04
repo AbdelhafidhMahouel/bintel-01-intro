@@ -30,6 +30,21 @@ You'll work with these areas:
 - **pyproject.toml** - update authorship & links
 - **zensical.toml** - update authorship & links
 
+## Technical Modification
+
+I added a new analysis that calculates the average sale amount by customer region.
+
+The original project analyzed total sales by region and product category. My modification adds a reusable `average_sales_by_region()` function that groups sales by region and calculates the mean sale amount.
+
+The project now generates an additional bar chart titled **Average Sale Amount by Region**.
+
+After running the modified project, I found that the **North region had the highest average sale amount at approximately $1,081.63**. This provides a different business insight from total sales because the East region had the highest total sales, while the North region had the highest average sale amount.
+
+Run my modified file with:
+
+`uv run python -m bizintel.app_abdel`
+
+
 ## Instructions (pro-analytics-02)
 
 Follow the
