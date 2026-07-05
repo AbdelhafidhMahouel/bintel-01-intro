@@ -134,35 +134,62 @@ def sales_by_region(
 
 # === Section 2.1.1 DEFINE AVERAGE SALES BY REGION FUNCTION ===
 
+# Define a reusable function that takes
+# the customers and sales DataFrames as input
+# and returns a DataFrame with average sales by region.
+# This technical modification provides a different business metric
+# from the original total sales by region analysis.
+
 
 def average_sales_by_region(
     df_customers: pd.DataFrame,
     df_sales: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Calculate average sale amount by customer region."""
+    """Calculate average sale amount by customer region.
 
+    Args:
+        df_customers: Customers DataFrame with CustomerID and Region columns.
+        df_sales: Sales DataFrame with CustomerID and SaleAmount columns.
+
+    Returns:
+        DataFrame with Region and average SaleAmount columns, sorted by SaleAmount.
+    """
     LOG.info("Calculating average sale amount by region")
 
+    # Make a copy of the sales DataFrame to avoid modifying the original
     df_sales = df_sales.copy()
+
+    # Convert the SaleAmount column to numeric, coercing errors to NaN ("not a number")
     df_sales["SaleAmount"] = pd.to_numeric(df_sales["SaleAmount"], errors="coerce")
 
+    # Merge the sales DataFrame with the customers DataFrame on CustomerID
+    # to get the Region for each sale
     df_merged: pd.DataFrame = df_sales.merge(
         df_customers[["CustomerID", "Region"]],
         on="CustomerID",
         how="left",
     )
 
+    # Clean up the Region column by stripping whitespace and capitalizing each word
     df_merged["Region"] = df_merged["Region"].str.strip().str.title()
 
+    # Group the merged DataFrame by Region and calculate
+    # the average SaleAmount for each region.
     grouped: pd.Series = pd.Series(df_merged.groupby("Region")["SaleAmount"].mean())
 
+    # Reset the index and sort by SaleAmount descending
+    # so the region with the highest average sale appears first.
     df_average_region: pd.DataFrame = grouped.reset_index().sort_values(
         "SaleAmount", ascending=False
     )
 
+    # Get the region with the highest average sale amount
     top_region: str = str(df_average_region.iloc[0]["Region"])
+
+    # Get the highest average sale amount
     top_average: float = float(df_average_region.iloc[0]["SaleAmount"])
 
+    # Log the region with the highest average sale amount
     LOG.info(f"  Highest average sale region: {top_region} (${top_average:,.2f})")
 
     return df_average_region
@@ -241,6 +268,66 @@ def sales_by_category(
     LOG.info(f"  Top category: {top_category} (${top_sales:,.2f})")
 
     return df_category
+
+
+# === Section 2.2.1 DEFINE AVERAGE SALES BY CATEGORY FUNCTION ===
+
+# Define a reusable function that takes
+# the products and sales DataFrames as input
+# and returns a DataFrame with average sales by product category.
+# This custom analysis helps compare average transaction values
+# across different product categories.
+
+
+def average_sales_by_category(
+    df_products: pd.DataFrame,
+    df_sales: pd.DataFrame,
+) -> pd.DataFrame:
+    """Calculate average sale amount by product category.
+
+    Args:
+        df_products: Products DataFrame with ProductID and Category columns.
+        df_sales: Sales DataFrame with ProductID and SaleAmount columns.
+
+    Returns:
+        DataFrame with Category and average SaleAmount columns, sorted by SaleAmount.
+    """
+    LOG.info("Calculating average sale amount by product category")
+
+    # Make a copy of the sales DataFrame to avoid modifying the original
+    df_sales = df_sales.copy()
+
+    # Convert the SaleAmount column to numeric, coercing errors to NaN ("not a number")
+    df_sales["SaleAmount"] = pd.to_numeric(df_sales["SaleAmount"], errors="coerce")
+
+    # Merge the sales DataFrame with the products DataFrame on ProductID
+    # to get the Category for each sale
+    df_merged: pd.DataFrame = df_sales.merge(
+        df_products[["ProductID", "Category"]],
+        on="ProductID",
+        how="left",
+    )
+
+    # Group the merged DataFrame by Category and calculate
+    # the average SaleAmount for each category.
+    grouped: pd.Series = pd.Series(df_merged.groupby("Category")["SaleAmount"].mean())
+
+    # Reset the index and sort by SaleAmount descending
+    # so the category with the highest average sale appears first.
+    df_average_category: pd.DataFrame = grouped.reset_index().sort_values(
+        "SaleAmount", ascending=False
+    )
+
+    # Get the category with the highest average sale amount
+    top_category: str = str(df_average_category.iloc[0]["Category"])
+
+    # Get the highest average sale amount
+    top_average: float = float(df_average_category.iloc[0]["SaleAmount"])
+
+    # Log the category with the highest average sale amount
+    LOG.info(f"  Highest average sale category: {top_category} (${top_average:,.2f})")
+
+    return df_average_category
 
 
 # === Section 2.3 DEFINE A SUMMARIZE FUNCTION ===
@@ -363,6 +450,20 @@ def main() -> None:
         xlabel="Category",
         ylabel="Total Sales Amount ($)",
         palette="Greens_d",
+    )
+
+    LOG.info("CALL a function to get average sales by product category........")
+    df_average_category = average_sales_by_category(df_products, df_sales)
+
+    LOG.info("CALL a function to plot average sales by product category........")
+    plot_bar(
+        df=df_average_category,
+        x="Category",
+        y="SaleAmount",
+        title="Average Sale Amount by Product Category",
+        xlabel="Category",
+        ylabel="Average Sale Amount ($)",
+        palette="Oranges_d",
     )
 
     LOG.info("CALL a function to summarize the datasets........")

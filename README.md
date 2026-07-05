@@ -45,6 +45,23 @@ Run my modified file with:
 `uv run python -m bizintel.app_abdel`
 
 
+## Custom Business Intelligence Analysis
+
+For Phase 5, I expanded the business intelligence analysis by adding
+average sale amount by product category.
+
+The project now calculates the average `SaleAmount` for each product
+category and displays the results in a bar chart.
+
+This analysis helps compare the typical sale amount across product
+categories. The results showed that the Office category had the highest
+average sale amount at approximately $1,179.84.
+
+This modification provides an additional business metric that can help
+support data-driven decision making.
+
+
+
 ## Instructions (pro-analytics-02)
 
 Follow the
